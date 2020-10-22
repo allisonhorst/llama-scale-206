@@ -1,0 +1,61 @@
+---
+title: "Llama scale data viz (Fall 2020)"
+author: "Allison Horst"
+date: "10/22/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, 
+                      message = FALSE, 
+                      warning = FALSE)
+
+library(tidyverse)
+library(here)
+library(ggimage)
+library(png)
+```
+
+## Read in the data and images
+
+Notes: 
+
+- Responses as of 11:30am PST on 2020-10-22
+- Responses are not mutually exclusive (i.e. a single student can pick multiple llamas)
+- Total responses = 73
+
+
+```{r}
+# Read in llama response data
+llama_response <- read_csv(here("data","llama_survey.csv")) %>% 
+  uncount(count) %>% # This gets it into case format
+  group_by(llama_choice) %>% 
+  mutate(id = seq(1:n())) %>% 
+  mutate(img_path = case_when(
+    image_name == "llama_1" ~ here("img","llama_1.png"),
+    image_name == "llama_2" ~ here("img","llama_2.png"),
+    image_name == "llama_3" ~ here("img","llama_3.png"),
+    image_name == "llama_4" ~ here("img","llama_4.png"),
+    image_name == "llama_5" ~ here("img","llama_5.png"),
+    image_name == "llama_6" ~ here("img","llama_6.png"),
+    image_name == "llama_7" ~ here("img","llama_7.png"),
+    image_name == "llama_8" ~ here("img","llama_8.png"),
+    image_name == "llama_9" ~ here("img","llama_9.png")
+  )) %>% 
+  mutate(llama_choice = as.factor(llama_choice))
+
+```
+
+# Make my data viz! 
+
+```{r}
+llama_plot <- ggplot(data = llama_response, aes(x = llama_choice, y = id)) +
+  geom_image(aes(image = img_path), size = 0.04) +
+  labs(x = "Llama choice",
+       y = "Frequency (n = 73)",
+       title = "ESM 206 (Fall 2020) llama scale responses") +
+  theme_minimal()
+
+ggsave(here("img","llama_plot.png"), width = 6, height = 6)
+```
+
